@@ -68,7 +68,7 @@ def main(args):
                 winner = 'Player 1' if players[0] == 'human' or players[0] == players[1] else players[0]
                 status(gui, f"{winner} wins!")
             elif sum(banners[1]) > sum(banners[0]):
-                winner = 'Player 2' if players[0] == 'human' or players[0] == players[1] else players[0]
+                winner = 'Player 2' if players[1] == 'human' or players[0] == players[1] else players[1]
                 status(gui, f"{winner} wins!")
             else:
                 status(gui, "It's a tie!")
