@@ -90,7 +90,7 @@ def main(args):
             else:  # the player is an AI agent
                 status(gui, f'{players[turn]} is thinking...')
                 time.sleep(PAUSE)
-                ind = ai[turn].get_computer_move(board, cards, banners)
+                ind = ai[turn].get_computer_move(board, cards, banners, turn)
 
             # Make the move if it is valid
             if ind in validmoves:
