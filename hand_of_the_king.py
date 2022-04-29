@@ -17,7 +17,7 @@ COLS = 6
 COLORS = 8  # number of colors, 7 of which can be controlled
 CARD_SIZE = 60  # height and width of cards, in pixels
 MARGIN = 10  # space in between cards, in pixels
-PAUSE = 0.5  # default time (in seconds) to wait between things
+PAUSE = 1  # default time (in seconds) to wait between things
 
 parser = argparse.ArgumentParser(description="Play a Game of Thrones: Hand of the King!")
 parser.add_argument('--player1', metavar='p1', type=str, help="either human or the name of an AI file", default='human')
@@ -90,7 +90,7 @@ def main(args):
             else:  # the player is an AI agent
                 status(gui, f'{players[turn]} is thinking...')
                 time.sleep(PAUSE)
-                ind = ai[turn].get_computer_move(board, cards, banners, turn)
+                ind = ai[turn].get_computer_move(board.copy(), cards, banners, turn)
 
             # Make the move if it is valid
             if ind in validmoves:
@@ -117,6 +117,8 @@ def main(args):
                 print(*banners[0])
                 print(*banners[1])
                 print(f'score: {sum(banners[0])}-{sum(banners[1])}\n')
+                
+                # print(*board)
 
         # Check for keyboard input
         key = gui.checkKey()
