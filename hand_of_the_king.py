@@ -22,13 +22,14 @@ PAUSE = 1  # default time (in seconds) to wait between things
 parser = argparse.ArgumentParser(description="Play a Game of Thrones: Hand of the King!")
 parser.add_argument('--player1', metavar='p1', type=str, help="either human or the name of an AI file", default='human')
 parser.add_argument('--player2', metavar='p2', type=str, help="either human or the name of an AI file", default='human')
+parser.add_argument('-b', '--board', type=str, help="file containing starting board setup (for repeatability)", default=None)
 
 
 def main(args):
     print("Let's play a Game of Thrones: Hand of the King!")
 
     # Initialize the game
-    board = shufflecards()  # shuffle the cards to make a board array
+    board = loadcards(args.board) if args.board else shufflecards()  # load or shuffle cards to make a board array
     x0 =  board.index(1)  # starting position of the 1-card (which will be needed as a workaround for actually swapping graphics objects)
     gui = gamesetup(board)  # make the gui
     cards = [[0] * (COLORS - 1) for i in range(2)]  # initialize card collection for each player
@@ -209,6 +210,19 @@ def getvalidmoves(board):
                 colors.append(board[i])
     
     return moves
+
+
+def loadcards(txtfile):
+    '''Initialize the board by loading "pre-shuffled" cards from file.'''
+    with open(txtfile, 'r') as f:
+        data = f.read()
+    board = [int(i) for i in data.replace('\n', ' ').split()]
+
+    if len(board) != ROWS * COLS:
+        print('ERROR: Invalid board (size does not match expected dimensions)')
+        exit()
+
+    return board
 
 
 def makemove(gui, board, x, x0, collection):
