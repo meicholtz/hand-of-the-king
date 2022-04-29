@@ -23,12 +23,14 @@ parser = argparse.ArgumentParser(description="Play a Game of Thrones: Hand of th
 parser.add_argument('--player1', metavar='p1', type=str, help="either human or the name of an AI file", default='human')
 parser.add_argument('--player2', metavar='p2', type=str, help="either human or the name of an AI file", default='human')
 parser.add_argument('-b', '--board', type=str, help="file containing starting board setup (for repeatability)", default=None)
+parser.add_argument('-s', '--seed', metavar='n', type=int, help="seed for random number generator", default=None)
 
 
 def main(args):
     print("Let's play a Game of Thrones: Hand of the King!")
 
     # Initialize the game
+    random.seed(args.seed)  # set seed for random number generator (for repeatability of shuffled cards, if desired)
     board = loadcards(args.board) if args.board else shufflecards()  # load or shuffle cards to make a board array
     x0 =  board.index(1)  # starting position of the 1-card (which will be needed as a workaround for actually swapping graphics objects)
     gui = gamesetup(board)  # make the gui
