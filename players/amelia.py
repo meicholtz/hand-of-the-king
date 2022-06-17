@@ -1,4 +1,4 @@
-# ai_search1.py
+# amelia.py
 # AI player for Hand of the King initially developed by Amelia Reiss during CSC 3510 (Spring 2022)
 # and subsequently modified by Matthew Eicholtz. This player uses minimax with alpha-beta pruning
 # coupled with depth-limited search and a custom heuristic.
