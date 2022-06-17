@@ -24,15 +24,16 @@ parser = argparse.ArgumentParser(description="Play a Game of Thrones: Hand of th
 parser.add_argument('-p', '--players', nargs=2, metavar='name', type=str, help="specify two AI players by filename", default=['ai_random', 'ai_random'])
 parser.add_argument('-b', '--board', metavar='file', type=str, help="file containing starting board setup (for repeatability)", default=None)
 parser.add_argument('-s', '--seed', metavar='n', type=int, help="seed for random number generator", default=None)
+parser.add_argument('-r', '--randomize', action="store_true", help="flag to randomize player order")
 parser.add_argument('-v', '--verbose', action="store_true", help="flag to show helpful text")
 parser.add_argument('-d', '--debug', action="store_true", help="flag to use pdb when applicable")
 
 
-def play(players, board=None, seed=None, verbose=False, debug=False):
+def play(players, board=None, seed=None, randomize=False, verbose=False, debug=False):
     # Initialize the game
     if verbose: print("Let's play a Game of Thrones: Hand of the King!")
     random.seed(seed)  # set seed for random number generator (for repeatability of shuffled cards, if desired)
-    ai = loadplayers(players, verbose=verbose)
+    ai = loadplayers(players, randomize, verbose)
     board = loadcards(board) if board else dealcards(HOUSES)
     cards = [[0] * len(HOUSES) for i in range(2)]  # initialize card collection for each player
     banners = [[0] * len(HOUSES) for i in range(2)]  # initialize banner collection for each player
@@ -145,9 +146,9 @@ def loadcards(file):
     return board
 
 
-def loadplayers(players, verbose=False):
+def loadplayers(players, randomize=False, verbose=False):
     '''Load AI players from file, if applicable.'''
-    ai = [{}, {}]
+    ai = [{}, {}]  # each player is a dictionary containing the player name and corresponding module
     for i in range(len(players)):
         pathname, filename = os.path.split(os.path.abspath(players[i]))
         filename = ''.join(filename.split('.')[:-1])  # remove filename extension
@@ -155,8 +156,9 @@ def loadplayers(players, verbose=False):
         if verbose: print(f"Loading Player {i + 1} AI ({players[i]})...", end="")
         
         try:
-            sys.path.append(pathname)  # add directory containing AI player to system path
-            ai[i]['module'] = importlib.import_module(filename)
+            # sys.path.append(pathname)  # add directory containing AI player to system path
+            modulename = '.'.join([os.path.split(pathname)[1], filename])
+            ai[i]['module'] = importlib.import_module(modulename)
         except ImportError:
             sys.exit(f"\n  ERROR: in loadplayers, cannot import AI player from file ({players[i]})")
 
@@ -165,6 +167,13 @@ def loadplayers(players, verbose=False):
         
         if verbose: print("done")
 
+    # Randomize player order, if desired
+    if randomize:
+        random.shuffle(ai)  # randomly shuffles player order (in place)
+        if verbose:
+            print(f"After shuffling: Player 1 = {ai[0]['name']}, Player 2 = {ai[1]['name']}")
+
+    # Make sure player names are unique
     if ai[0]['name'] == ai[1]['name']:
         ai[0]['name'] = ai[0]['name'] + '1'
         ai[1]['name'] = ai[1]['name'] + '2'
@@ -215,7 +224,7 @@ def makemove(state, player, card):
 def show(state, player):
     '''Displays relevant info about the game state.'''
     print(f"Number of Moves: {state['moves']}")
-    print(f"Current Player: {player}")
+    print(f"Current Player: {player + 1}")
     print("Board:")
     board = ''.join(str(i) for i in state['board']).replace('0', '-').replace('1', '*')
     j = 0
